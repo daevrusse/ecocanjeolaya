@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+h<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -381,6 +381,18 @@
         alert('Las contraseñas no coinciden.');
         return;
       }
+              // Enviar datos a Google Sheets via Apps Script
+              const webhookURL = 'https://script.google.com/macros/s/AKfycbz6WjPTX4huzp7piL7O7cqO1I0EwAKyfsyw4wGb2Bp33nurdsZYOWdspIqu65e-9d-0KA/exec';
+              const dni = document.getElementById('dni').value;
+              const nombre = document.getElementById('nombre').value;
+              const apellido = document.getElementById('apellido').value;
+              const celularInput = document.querySelector('input[type="tel"]');
+              const celular = celularInput ? celularInput.value : '';
+              fetch(webhookURL, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ dni, nombre, apellido, celular })
+              }).catch(function(err) { console.error('Error al guardar registro:', err); });
       alert('Cuenta creada correctamente. Ahora puedes registrar tus reciclajes.');
       showPage('dashboard');
     }
