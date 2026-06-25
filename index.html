@@ -388,12 +388,8 @@
               const apellido = document.getElementById('apellido').value;
               const celularInput = document.querySelector('input[type="tel"]');
               const celular = celularInput ? celularInput.value : '';
-        fetch(webhookURL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain' },
-                            body: JSON.stringify({ dni: dni, nombre: nombre, apellido: apellido, celular: celular })
-        }).catch(function(err) { console.error('Error al guardar registro:', err); });
+var params = 'dni=' + encodeURIComponent(dni) + '&nombre=' + encodeURIComponent(nombre) + '&apellido=' + encodeURIComponent(apellido) + '&celular=' + encodeURIComponent(celular);
+                      fetch(webhookURL + '?' + params, { method: 'GET', mode: 'no-cors' }).catch(function(err) { console.error('Error al guardar registro:', err); });
       alert('Cuenta creada correctamente. Ahora puedes registrar tus reciclajes.');
       showPage('dashboard');
     }
