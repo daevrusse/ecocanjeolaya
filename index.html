@@ -291,6 +291,7 @@
             <div class="form-group"><label>Apellido <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-user"></i><input id="apellido" type="text" placeholder="Tu apellido" required></div></div>
           </div>
           <div class="form-group"><label>Celular <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-mobile-screen"></i><input type="tel" placeholder="Ejemplo: 964123456" required></div></div>
+                    <div class="form-group"><label>Correo Gmail <span class="req">*</span>span></label><div class="input-wrap"><i class="fa-solid fa-envelope"></i>i><input id="correo" type="email" placeholder="tucorreo@gmail.com" required pattern="[a-zA-Z0-9._%+\-]+@gmail\.com"></div></div></label>
           <div class="form-group"><label>Contraseña <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="password" type="password" minlength="6" placeholder="Mínimo 6 caracteres" required></div></div>
           <div class="form-group"><label>Confirmar contraseña <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="confirm_password" type="password" placeholder="Repite tu contraseña" required></div></div>
           <div class="terms-row"><input type="checkbox" required><span>Acepto los términos y condiciones del programa ECOCANJE OLAYA.</span></div>
@@ -320,7 +321,7 @@
   <section id="page-dashboard" class="page dashboard">
     <div class="dashboard-grid">
       <div class="info-card">
-        <h2><i class="fa-solid fa-user"></i> Hola, Juan Pérez</h2>
+                    <h2><i class="fa-solid fa-user"></i>i> <span id="userGreeting">Hola</span>span></h2><p id="userEmail" style="color:#64748b;font-size:.85rem;margin-top:.2rem"></p>p></h2>
         <p>EcoPuntos acumulados:</p>
         <div class="points-number"><span id="totalPoints">20</span></div>
         <p class="section-subtitle" style="text-align:left;margin:0;">Sigue reciclando para alcanzar tu próximo premio.</p>
@@ -388,8 +389,12 @@
               const apellido = document.getElementById('apellido').value;
               const celularInput = document.querySelector('input[type="tel"]');
               const celular = celularInput ? celularInput.value : '';
-var params = 'dni=' + encodeURIComponent(dni) + '&nombre=' + encodeURIComponent(nombre) + '&apellido=' + encodeURIComponent(apellido) + '&celular=' + encodeURIComponent(celular);
-                      fetch(webhookURL + '?' + params, { method: 'GET', mode: 'no-cors' }).catch(function(err) { console.error('Error al guardar registro:', err); });
+const correo = document.getElementById('correo').value;
+                      var params = 'dni=' + encodeURIComponent(dni) + '&nombre=' + encodeURIComponent(nombre) + '&apellido=' + encodeURIComponent(apellido) + '&celular=' + encodeURIComponent(celular) + '&correo=' + encodeURIComponent(correo);
+                      var img = new Image(); img.src = webhookURL + '?' + params;
+                      localStorage.setItem('ecoUser', JSON.stringify({ nombre: nombre, correo: correo, puntos: 0 }));
+                      document.getElementById('userGreeting').textContent = 'Hola, ' + nombre;
+                      document.getElementById('userEmail').textContent = correo;
       alert('Cuenta creada correctamente. Ahora puedes registrar tus reciclajes.');
       showPage('dashboard');
     }
@@ -404,6 +409,7 @@ var params = 'dni=' + encodeURIComponent(dni) + '&nombre=' + encodeURIComponent(
       const earned = (pointsPerKg * quantity) + bonus;
       points += earned;
       document.getElementById('totalPoints').textContent = points;
+                      var userData = JSON.parse(localStorage.getItem('ecoUser') || '{}'); userData.puntos = points; localStorage.setItem('ecoUser', JSON.stringify(userData));
 
       const today = new Date().toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
       const historyItem = document.createElement('li');
@@ -415,6 +421,36 @@ var params = 'dni=' + encodeURIComponent(dni) + '&nombre=' + encodeURIComponent(
       msg.textContent = `¡Felicidades! Has ganado ${earned} EcoPuntos.`;
       event.target.reset();
     }
+
+          // Cargar datos del usuario desde localStorage al mostrar el dashboard
+          function loadUserDashboard() {
+                    var userData = JSON.parse(localStorage.getItem('ecoUser') || '{}');
+                    if (userData.nombre) {
+                                document.getElementById('userGreeting').textContent = 'Hola, ' + userData.nombre;
+                    }
+                    if (userData.correo) {
+                                document.getElementById('userEmail').textContent = userData.correo;
+                    }
+                    if (userData.puntos !== undefined) {
+                                points = userData.puntos;
+                                document.getElementById('totalPoints').textContent = points;
+                    }
+          }
+
+          // Modificar showPage para cargar datos al ir al dashboard
+          var _origShowPage = showPage;
+          showPage = function(pageName) {
+                    _origShowPage(pageName);
+                    if (pageName === 'dashboard' || pageName === 'mis-puntos') {
+                                loadUserDashboard();
+                    }
+          };
+
+          // Cargar al inicio si ya hay sesion
+          window.addEventListener('load', function() {
+                    var userData = JSON.parse(localStorage.getItem('ecoUser') || '{}');
+                    if (userData.nombre) { loadUserDashboard(); }
+          });
   </script>
 </body>
 </html>
